@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Smooth transitions */
+* {
+  transition: all 0.2s ease;
+}
+
+/* Background */
+body {
+  @apply bg-gradient-to-br from-[#F0FBFF] to-white font-sans text-gray-900;
+}
+
+/* Primary button */
+.btn-primary {
+  @apply bg-teal-600 text-white font-semibold px-6 py-3 rounded-xl shadow;
+}
+.btn-primary:hover {
+  @apply bg-teal-700 scale-105;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border-radius: 1rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* FLASHCARD STYLES */
+/* FLASHCARD 3D FLIP FIX */
+.flashcard {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flashcard-front,
+.flashcard-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+}
+
