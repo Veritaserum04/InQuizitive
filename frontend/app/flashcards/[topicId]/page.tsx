@@ -5,8 +5,9 @@ import { supabase } from "@/src/lib/supabase";
 
 export default function FlashcardsPage({ params }: any) {
   // ✅ Next.js 16 — unwrap the Promise
-  const { topicId } = use(params);
-
+  const { topicId } = use(
+  params as Promise<{ topicId: string }>
+);
   const [cards, setCards] = useState<any[]>([]);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);

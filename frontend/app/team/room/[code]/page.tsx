@@ -5,10 +5,23 @@ import { supabase } from "@/src/lib/supabase";
 import { useParams } from "next/navigation";
 
 export default function TeamRoom() {
-  const { roomCode } = useParams();
-  const [players, setPlayers] = useState([]);
+const { code: roomCode } = useParams<{ code: string }>();
+type Player = {
+  id: string;
+  name: string;
+  team?: string;
+  score?: number;
+};
+
+const [players, setPlayers] = useState<Player[]>([]);
   const [questionNumber, setQuestionNumber] = useState(1);
-  const [question, setQuestion] = useState(null);
+type Question = {
+  q: string;
+  a: string[];
+  correct: string;
+};
+
+const [question, setQuestion] = useState<Question | null>(null);
   const [selected, setSelected] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -24,7 +37,7 @@ export default function TeamRoom() {
       .subscribe();
 
     fetchPlayers();
-  }, []);
+  }, [roomCode]);
 
   async function fetchPlayers() {
     const { data } = await supabase
@@ -54,7 +67,7 @@ export default function TeamRoom() {
       player_id: "anonymous", // Replace with real user ID if auth added
       question_number: questionNumber,
       answer: selected,
-      is_correct: selected === question.correct,
+is_correct: selected === question!.correct,
     });
 
     setSubmitted(true);
@@ -76,7 +89,7 @@ export default function TeamRoom() {
       <div className="mt-6 bg-white p-4 rounded-xl shadow">
         <h2 className="text-lg font-bold mb-2">Players</h2>
 
-        {players.map((p: any) => (
+        {players.map((p) => (
           <div key={p.id} className="flex justify-between p-2 border-b">
             <span>{p.name}</span>
             <span className="font-semibold text-teal-600">Team {p.team}</span>
@@ -90,7 +103,7 @@ export default function TeamRoom() {
           <h2 className="text-2xl font-bold">{question.q}</h2>
 
           <div className="mt-6 grid gap-4">
-            {question.a.map((opt) => (
+            {question.a.map((opt: string) => (
               <button
                 key={opt}
                 disabled={submitted}
@@ -127,7 +140,7 @@ export default function TeamRoom() {
       <div className="mt-10 bg-white p-6 rounded-xl shadow">
         <h2 className="text-xl font-bold mb-4">Live Scoreboard</h2>
 
-        {players.map((p: any) => (
+        {players.map((p) => (
           <div key={p.id} className="flex justify-between p-2 border-b">
             <span>{p.name}</span>
             <span className="text-teal-700 font-bold">{p.score}</span>

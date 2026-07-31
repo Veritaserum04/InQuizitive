@@ -7,7 +7,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function RoomLobby({ params }: any) {
-  const { roomId } = use(params);
+const { roomId } = use(
+  params as Promise<{
+    code: string;
+    roomId: string;
+  }>
+);
   const router = useRouter();
 
   const [room, setRoom] = useState<any>(null);

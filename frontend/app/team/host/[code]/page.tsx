@@ -47,9 +47,11 @@ export default function HostRoomPage() {
         return;
       }
 
-      if (session.topics?.title) {
-        setTopicTitle(session.topics.title);
-      }
+      const topic = session.topics?.[0];
+
+if (topic?.title) {
+  setTopicTitle(topic.title);
+}
 
       const { data: qs, error: qError } = await supabase
         .from("questions")

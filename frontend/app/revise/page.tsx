@@ -5,7 +5,13 @@ import Link from "next/link";
 import { supabase } from "@/src/lib/supabase";
 
 export default function RevisePage() {
-  const [topics, setTopics] = useState([]);
+type Topic = {
+  id: string;
+  title: string;
+  description: string;
+};
+
+const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

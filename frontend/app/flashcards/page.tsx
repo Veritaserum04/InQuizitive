@@ -5,7 +5,12 @@ import Link from "next/link";
 import { supabase } from "@/src/lib/supabase";
 
 export default function FlashcardsHome() {
-  const [topics, setTopics] = useState([]);
+type Topic = {
+  id: string;
+  title: string;
+};
+
+const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

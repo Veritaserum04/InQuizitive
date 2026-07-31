@@ -1,61 +1,69 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { supabase } from "@/src/lib/supabase";
 
-export default function LeaderboardPage({ params }: any) {
-  const roomCode = params.code;
+type PageProps = {
+  params: Promise<{
+    code: string;
+  }>;
+};
+
+export default function LeaderboardPage({ params }: PageProps) {
+  const { code: roomCode } = use(params);
+
   const [room, setRoom] = useState<any>(null);
-  const [teams, setTeams] = useState<any[]>([]);
   const [scores, setScores] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadData() {
-      // Load room
-      const { data: roomData } = await supabase
-        .from("rooms")
-        .select("*")
-        .eq("code", roomCode)
-        .single();
+  async function loadData() {
+    // Load room
+    const { data: roomData, error: roomError } = await supabase
+      .from("rooms")
+      .select("*")
+      .eq("code", roomCode)
+      .single();
 
-      setRoom(roomData);
-
-      // Load teams
-      const { data: teamList } = await supabase
-        .from("teams")
-        .select("id, name")
-        .eq("room_id", roomData.id);
-
-      // Load answers
-      const { data: answers } = await supabase
-        .from("team_answers")
-        .select("team_id, is_correct")
-        .eq("room_id", roomData.id);
-
-      // Compute scores
-      const scoreMap: any = {};
-
-      answers.forEach((a: any) => {
-        if (!scoreMap[a.team_id]) scoreMap[a.team_id] = 0;
-        if (a.is_correct) scoreMap[a.team_id] += 1; // ✔ Style A: 1 point per correct answer
-      });
-
-      // Merge teams + scores
-      const teamScores = teamList.map((t) => ({
-        ...t,
-        score: scoreMap[t.id] || 0,
-      }));
-
-      // Sort by score (descending)
-      teamScores.sort((a: any, b: any) => b.score - a.score);
-
-      setScores(teamScores);
+    if (roomError || !roomData) {
+      console.error(roomError);
       setLoading(false);
+      return;
     }
 
-    loadData();
-  }, []);
+    setRoom(roomData);
+
+    // Load teams
+    const { data: teamList } = await supabase
+      .from("teams")
+      .select("id, name")
+      .eq("room_id", roomData.id);
+
+    // Load answers
+    const { data: answers } = await supabase
+      .from("team_answers")
+      .select("team_id, is_correct")
+      .eq("room_id", roomData.id);
+
+    const scoreMap: Record<string, number> = {};
+
+    (answers ?? []).forEach((a: any) => {
+      scoreMap[a.team_id] = (scoreMap[a.team_id] ?? 0) + (a.is_correct ? 1 : 0);
+    });
+
+    const teamScores = (teamList ?? []).map((t: any) => ({
+      ...t,
+      score: scoreMap[t.id] ?? 0,
+    }));
+
+    teamScores.sort((a: any, b: any) => b.score - a.score);
+
+    setScores(teamScores);
+    setLoading(false);
+  }
+
+  loadData();
+}, [roomCode]);
 
   if (loading) {
     return <p className="text-center mt-20 text-lg">Loading leaderboard...</p>;
